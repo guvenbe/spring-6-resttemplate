@@ -8,21 +8,28 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
 public class BeerClientImpl implements BeerClient {
 
-    public static final String BASE_URL = "http://localhost:8080";
+    //public static final String BASE_URL = "http://localhost:8080";
     public static final String GET_BEER_PATH = "/api/v1/beer";
     private final RestTemplateBuilder restTemplateBuilder;
 
     @Override
-    public Page<BeerDTO> listBeers() {
+    public Page<BeerDTO> listBeers(String beerName) {
         RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<BeerDTOPageImpl> stringResponse =
-                restTemplate.getForEntity(BASE_URL + GET_BEER_PATH, BeerDTOPageImpl.class);
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromPath(GET_BEER_PATH);
+        if(beerName != null){
+            //This will encode any parameter
+            uriComponentsBuilder.queryParam("beerName", beerName);
+        }
+        ResponseEntity<BeerDTOPageImpl> response =
+                restTemplate.getForEntity(uriComponentsBuilder.toUriString(), BeerDTOPageImpl.class);
 
+        return response.getBody();
 
 //        ResponseEntity<String> stringResponse =
 //                restTemplate.getForEntity(BASE_URL + GET_BEER_PATH, String.class);
@@ -40,6 +47,6 @@ public class BeerClientImpl implements BeerClient {
 //
 //        System.out.println(stringResponse.getBody());
 
-        return null;
+
     }
 }
